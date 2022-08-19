@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "heroku-postbuild": "cd client && npm install && npm install --only=dev --no-shrinkwrap && npm run build",
+    
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index",
     "server": "nodemon index",
     "client": "npm start --prefix client",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client",
     "both": "concurrently \"npm run server\" \"npm run client\" "
   },
   "author": "yogesh",
