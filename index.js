@@ -1,0 +1,82 @@
+const express=require('express');
+const app=express();
+const mongoose=require('mongoose');
+const Register=require('./regschema.js');
+const jwt=require('jsonwebtoken');
+const checktoken=require('./checktoken');
+const msgschema=require('./msgschema.js');
+const cors = require('cors');
+
+app.use(express.json());
+app.use(cors({
+    origin: '*'
+}))
+
+mongoose.connect("mongodb+srv://yogesh:yoge111@cluster0.grmrsyh.mongodb.net/?retryWrites=true&w=majority").then(()=>console.log("db connected"))
+
+app.get('/',(req,res)=>{
+    res.send('chat app')
+})
+
+app.post('/register',async(req,res)=>{
+    console.log(req)
+    const {username,email,password,confirmpassword} = req.body;
+    let exist = await Register.findOne({username})
+    if(exist){
+        return res.send('User Already Exist')
+    }
+    if(password !== confirmpassword){
+        return res.send('Passwords are not matching');
+    }
+    let newUser = new Register({
+        username,
+        email,
+        password,
+        confirmpassword
+    })
+    await newUser.save();
+    res.send('Registered Successfully')
+})
+
+app.post('/login',async (req, res) => {
+        const {username,password} = req.body;
+        let exist = await Register.findOne({username});
+        if(!exist) {
+              res.json(null);
+         }
+    else if(exist.password !== password) {
+              res.json(null);
+         }
+        else{
+        let auth={user:{id:exist._id} }
+        jwt.sign(auth,'key',{expiresIn:3600000},(err,token)=> { res.json(token)})}
+    }
+    )
+
+app.post('/chat',checktoken,async(req,res)=>{
+    const {message} = req.body;
+    let exist1 =await Register.findById(req.user.id)
+    let newmessage= msgschema({
+        user:req.user.id,
+        username:exist1.username,
+        message
+    })
+    await newmessage.save();
+    let exist =await msgschema.find();
+    res.send(exist)
+
+})
+
+app.get('/chat',checktoken,async(req,res)=>{
+    let exist =await msgschema.find();
+    res.send(exist)
+})  
+
+app.get('/username',checktoken,async(req,res)=>{
+    let exist=await Register.findById(req.user.id);
+    res.send(exist.username);
+})
+
+app.listen(5000,()=>{
+    console.log('server running')
+})
