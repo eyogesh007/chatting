@@ -8,7 +8,7 @@ const options = {
 let msgschema=mongoose.Schema({
     user:{
         type:mongoose.Schema.Types.ObjectId,
-    ref:'Register'
+        ref:'Register'
     },
     username:{
         type:String,

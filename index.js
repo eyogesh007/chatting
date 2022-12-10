@@ -4,19 +4,40 @@ const mongoose=require('mongoose');
 const Register=require('./regschema.js');
 const jwt=require('jsonwebtoken');
 const checktoken=require('./checktoken');
-const msgschema=require('./msgschema.js');
+//const msgschema=require('./msgschema.js');
 const cors = require('cors');
+
 
 app.use(express.json());
 app.use(cors({
     origin: '*'
 }))
 
+let msgschemas=new mongoose.Schema({
+    user:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Register'
+    },
+    username:{
+        type:String,
+        required:true
+    },
+    message:{
+        type:String,
+        required:true
+    }
+
+})
+
 mongoose.connect("mongodb+srv://yogesh:yoge111@cluster0.grmrsyh.mongodb.net/?retryWrites=true&w=majority").then(()=>console.log("db connected"))
+var db = mongoose.connection;
 
 app.get('/',(req,res)=>{
     res.send('chat app')
 })
+
+
+
 
 app.post('/register',async(req,res)=>{
     console.log(req)
@@ -53,22 +74,25 @@ app.post('/login',async (req, res) => {
     }
     )
 
-app.post('/chat',checktoken,async(req,res)=>{
+app.post('/chat/:name',checktoken,async(req,res)=>{
     const {message} = req.body;
+    const mschema= mongoose.model(`${req.params.name}`,msgschemas,`${req.params.name}`);
     let exist1 =await Register.findById(req.user.id)
-    let newmessage= msgschema({
+    let newmessage= mschema({
         user:req.user.id,
         username:exist1.username,
         message
     })
     await newmessage.save();
-    let exist =await msgschema.find();
+    let exist =await mschema.find();
     res.send(exist)
 
 })
 
-app.get('/chat',checktoken,async(req,res)=>{
-    let exist =await msgschema.find();
+app.get('/chat/:name',checktoken,async(req,res)=>{
+    let name=req.params.name
+    const mschema= mongoose.model(`${req.params.name}`,msgschemas,`${req.params.name}`);
+    let exist =await mschema.find();
     res.send(exist)
 })  
 
@@ -78,7 +102,7 @@ app.get('/username',checktoken,async(req,res)=>{
 })
 
 
-
+/*
 const whitelist = ['http://localhost:3000', 'http://localhost:8080', 'https://shrouded-journey-38552.heroku...']
 const corsOptions = {
   origin: function (origin, callback) {
@@ -102,9 +126,9 @@ if (process.env.NODE_ENV === 'production') {
   res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
  });
 }
+*/
 
-app.use(cors(corsOptions))
 
-app.listen(process.env.PORT || 5000,()=>{
+app.listen(5000,()=>{
     console.log('server running')
 })
