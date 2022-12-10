@@ -1,5 +1,10 @@
 const mongoose=require('mongoose');
-
+mongoose.set("debug", true);
+mongoose.set("strictQuery", false);
+const options = {
+  strict: "throw",
+  strictQuery: false
+};
 let msgschema=mongoose.Schema({
     user:{
         type:mongoose.Schema.Types.ObjectId,
@@ -14,6 +19,6 @@ let msgschema=mongoose.Schema({
         required:true
     }
 
-})
+},options)
 
 module.exports=mongoose.model('msgschema',msgschema);

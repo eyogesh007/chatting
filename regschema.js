@@ -1,5 +1,10 @@
 const mongoose = require('mongoose');
-
+mongoose.set("debug", true);
+mongoose.set("strictQuery", false);
+const options = {
+  strict: "throw",
+  strictQuery: false
+};
 let Register = new mongoose.Schema({
     username :{
         type : String,
@@ -18,6 +23,6 @@ let Register = new mongoose.Schema({
         type : String,
         required : true,
     }
-})
+},options)
 
 module.exports = mongoose.model('Register',Register)
