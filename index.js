@@ -22,6 +22,10 @@ let msgschemas=new mongoose.Schema({
         type:String,
         required:true
     },
+    dateandtime:{
+        type:String,
+        required:true
+    },
     message:{
         type:String,
         required:true
@@ -75,12 +79,24 @@ app.post('/login',async (req, res) => {
     )
 
 app.post('/chat/:name',checktoken,async(req,res)=>{
+    console.log("heyeyeyeyey")
     const {message} = req.body;
+    let currentDate = new Date();
+    let cDay = currentDate.getDate();
+    let cMonth = currentDate.getMonth() + 1;
+    let cYear = currentDate.getFullYear();
+    let sec=currentDate.getSeconds();
+    if(sec<'10')
+        sec='0'+sec
+    let time = currentDate.getHours() + ":" + currentDate.getMinutes() + ":" +sec ;
+     let date=  cDay + "/" + cMonth + "/" + cYear +"        "+time;
     const mschema= mongoose.model(`${req.params.name}`,msgschemas,`${req.params.name}`);
     let exist1 =await Register.findById(req.user.id)
+    console.log(date)
     let newmessage= mschema({
         user:req.user.id,
         username:exist1.username,
+        dateandtime:date,
         message
     })
     await newmessage.save();
@@ -90,6 +106,7 @@ app.post('/chat/:name',checktoken,async(req,res)=>{
 })
 
 app.get('/chat/:name',checktoken,async(req,res)=>{
+    console.log("eyeye")
     let name=req.params.name
     const mschema= mongoose.model(`${req.params.name}`,msgschemas,`${req.params.name}`);
     let exist =await mschema.find();

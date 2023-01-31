@@ -14,10 +14,16 @@ let msgschema=mongoose.Schema({
         type:String,
         required:true
     },
+    dateandtime:{
+        type:String,
+        required:true
+    },
     message:{
         type:String,
         required:true
     }
+    
+
 
 },options)
 
