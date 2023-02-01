@@ -1,12 +1,14 @@
 const express=require('express');
 const app=express();
 const mongoose=require('mongoose');
-//const Register=require('./regschema.js');
+const Registerr=require('./regschema.js');
 const jwt=require('jsonwebtoken');
 const checktoken=require('./checktoken');
 //const msgschema=require('./msgschema.js');
 const cors = require('cors');
-app.use(cors());
+app.use(cors({
+    origin: '*'
+}))
 
 app.use(express.json());
 
@@ -14,7 +16,7 @@ app.use(express.json());
 let msgschemas=new mongoose.Schema({
     user:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'Register'
+        ref:'Registerr'
     },
     username:{
         type:String,
@@ -31,20 +33,7 @@ let msgschemas=new mongoose.Schema({
 
 })
 
-let Register = new mongoose.Schema({
-    username :{
-        type : String,
-        required : true,
-    },
-    password :{
-        type : String,
-        required:true,
-    },
-    confirmpassword : {
-        type : String,
-        required : true,
-    }
-})
+
 
 mongoose.connect("mongodb+srv://yogesh:yoge111@cluster0.grmrsyh.mongodb.net/?retryWrites=true&w=majority").then(()=>console.log("db connected"))
 var db = mongoose.connection;
@@ -57,16 +46,16 @@ app.get('/',(req,res)=>{
 
 
 app.post('/register',async(req,res)=>{
-    console.log(req)
-    const {username,email,password,confirmpassword} = req.body;
-    let exist = await Register.findOne({username})
+    const {username,password,confirmpassword} = req.body;
+    console.log(req.body)
+    let exist = await Registerr.findOne({username})
     if(exist){
         return res.send('User Already Exist')
     }
     if(password !== confirmpassword){
         return res.send('Passwords are not matching');
     }
-    let newUser = new Register({
+    let newUser = new Registerr({
         username,
         password,
         confirmpassword
@@ -77,7 +66,7 @@ app.post('/register',async(req,res)=>{
 
 app.post('/login',async (req, res) => {
         const {username,password} = req.body;
-        let exist = await Register.findOne({username});
+        let exist = await Registerr.findOne({username});
         if(!exist) {
               res.json(null);
          }
@@ -102,7 +91,7 @@ app.post('/chat/:name',checktoken,async(req,res)=>{
     let time = currentDate.getHours() + ":" + currentDate.getMinutes() + ":" +sec ;
      let date=  cDay + "/" + cMonth + "/" + cYear +"        "+time;
     const mschema= mongoose.model(`${req.params.name}`,msgschemas,`${req.params.name}`);
-    let exist1 =await Register.findById(req.user.id)
+    let exist1 =await Registerr.findById(req.user.id)
     let newmessage= mschema({
         user:req.user.id,
         username:exist1.username,
@@ -123,7 +112,7 @@ app.get('/chat/:name',checktoken,async(req,res)=>{
 })  
 
 app.get('/username',checktoken,async(req,res)=>{
-    let exist=await Register.findById(req.user.id);
+    let exist=await Registerr.findById(req.user.id);
     res.send(exist.username);
 })
 

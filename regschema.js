@@ -5,7 +5,7 @@ const options = {
   strict: "throw",
   strictQuery: false
 };
-let Register = new mongoose.Schema({
+let Registerr = new mongoose.Schema({
     username :{
         type : String,
         required : true,
@@ -20,4 +20,4 @@ let Register = new mongoose.Schema({
     }
 },options)
 
-module.exports = mongoose.model('Register',Register)
+module.exports = mongoose.model('Registerr',Registerr)
