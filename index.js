@@ -6,12 +6,10 @@ const jwt=require('jsonwebtoken');
 const checktoken=require('./checktoken');
 //const msgschema=require('./msgschema.js');
 const cors = require('cors');
-
+app.use(cors());
 
 app.use(express.json());
-app.use(cors({
-    origin: '*'
-}))
+
 
 let msgschemas=new mongoose.Schema({
     user:{
@@ -55,7 +53,6 @@ app.post('/register',async(req,res)=>{
     }
     let newUser = new Register({
         username,
-        email,
         password,
         confirmpassword
     })
@@ -79,7 +76,6 @@ app.post('/login',async (req, res) => {
     )
 
 app.post('/chat/:name',checktoken,async(req,res)=>{
-    console.log("heyeyeyeyey")
     const {message} = req.body;
     let currentDate = new Date();
     let cDay = currentDate.getDate();
@@ -92,7 +88,6 @@ app.post('/chat/:name',checktoken,async(req,res)=>{
      let date=  cDay + "/" + cMonth + "/" + cYear +"        "+time;
     const mschema= mongoose.model(`${req.params.name}`,msgschemas,`${req.params.name}`);
     let exist1 =await Register.findById(req.user.id)
-    console.log(date)
     let newmessage= mschema({
         user:req.user.id,
         username:exist1.username,
@@ -106,7 +101,6 @@ app.post('/chat/:name',checktoken,async(req,res)=>{
 })
 
 app.get('/chat/:name',checktoken,async(req,res)=>{
-    console.log("eyeye")
     let name=req.params.name
     const mschema= mongoose.model(`${req.params.name}`,msgschemas,`${req.params.name}`);
     let exist =await mschema.find();
@@ -117,33 +111,6 @@ app.get('/username',checktoken,async(req,res)=>{
     let exist=await Register.findById(req.user.id);
     res.send(exist.username);
 })
-
-
-/*
-const whitelist = ['http://localhost:3000', 'http://localhost:8080', 'https://shrouded-journey-38552.heroku...']
-const corsOptions = {
-  origin: function (origin, callback) {
-    console.log("** Origin of request " + origin)
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-      console.log("Origin acceptable")
-      callback(null, true)
-    } else {
-      console.log("Origin rejected")
-      callback(new Error('Not allowed by CORS'))
-    }
-  }
-}
-
-const path = require('path');
-if (process.env.NODE_ENV === 'production') {
- // Serve any static files
- app.use(express.static(path.join(__dirname, 'client/build')));
-// Handle React routing, return all requests to React app
- app.get('*', function(req, res) {
-  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
- });
-}
-*/
 
 
 app.listen(5000,()=>{
