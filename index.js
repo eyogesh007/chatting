@@ -1,7 +1,7 @@
 const express=require('express');
 const app=express();
 const mongoose=require('mongoose');
-const Register=require('./regschema.js');
+//const Register=require('./regschema.js');
 const jwt=require('jsonwebtoken');
 const checktoken=require('./checktoken');
 //const msgschema=require('./msgschema.js');
@@ -29,6 +29,21 @@ let msgschemas=new mongoose.Schema({
         required:true
     }
 
+})
+
+let Register = new mongoose.Schema({
+    username :{
+        type : String,
+        required : true,
+    },
+    password :{
+        type : String,
+        required:true,
+    },
+    confirmpassword : {
+        type : String,
+        required : true,
+    }
 })
 
 mongoose.connect("mongodb+srv://yogesh:yoge111@cluster0.grmrsyh.mongodb.net/?retryWrites=true&w=majority").then(()=>console.log("db connected"))
